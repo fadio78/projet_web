@@ -37,7 +37,11 @@ public void doGet(HttpServletRequest request,
         try {
             if(action.equals("Se connecter")) {
                 actionConnection(request,response);
-            }           
+            }
+            else if(action.equals("S'inscrire")){
+                actionInscrire(request,response);
+            }
+
         } catch (RuntimeException e) {
             request.setAttribute("erreurMessage", e.getMessage());
             getServletContext().getRequestDispatcher("/WEB-INF/bdErreur.jsp").forward(request, response);
@@ -45,21 +49,51 @@ public void doGet(HttpServletRequest request,
     }
 
     /**
-     * Ajout d'un ouvrage.
+     * Identification de l'utilisateur
      */
     private void actionConnection(HttpServletRequest request,
             HttpServletResponse response
             )
             throws IOException, ServletException {
         // accession a la base de donnee en theorie
-        if (request.getParameter("nomUtilisateur").equals("nathan") & request.getParameter("mdp").equals("claudot")) {
-            HttpSession session = request.getSession();
-            getServletContext().getRequestDispatcher("/index.html").forward(request, response);
-        }
-        else {
-            getServletContext().getRequestDispatcher("/AWBD/erreur.html").forward(request, response);
+        try {
+            if (request.getParameter("login").equals("nathan") & request.getParameter("mdp").equals("claudot")) {
+                HttpSession session = request.getSession();
+                getServletContext().getRequestDispatcher("/index.html").forward(request, response);
+            }
+            else {
+                getServletContext().getRequestDispatcher("/AWBD/erreur.html").forward(request, response);
+            }
+        } catch (RuntimeException e /*DAOExcepion evrai*/) {
+            request.setAttribute("erreurMessage", e.getMessage());
+            getServletContext().getRequestDispatcher("/WEB-INF/bdErreur.jsp").forward(request, response);            
         }
     }
+
+    private void actionInscrire(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // acces a la base de donne, ajout dans la base de donne, verifi que personne a le meme login
+        try {
+            if ( request.getParameter("nom").equals("") 
+                  || request.getParameter("prenom").equals("") 
+                    || request.getParameter("login").equals("")
+                     || request.getParameter("mdp").equals("") ) {
+                // faire un bean Personne, eventuellement creer un attribut personne
+                // comme sa dans la jsp on le recupere et on re rempli ce qu'il etait bon
+                // puis specifier: ce champs est obligatoire la il a pas rempli
+                
+                getServletContext().getRequestDispatcher("/inscription.jsp").forward(request, response); }
+
+            else {
+                getServletContext().getRequestDispatcher("/index.html").forward(request, response); 
+            }
+           
+        } catch (RuntimeException e /*DAOExcepion evrai*/) {
+            request.setAttribute("erreurMessage", e.getMessage());
+            getServletContext().getRequestDispatcher("/WEB-INF/bdErreur.jsp").forward(request, response);            
+        }    
+    }
+    
+
 
 
     

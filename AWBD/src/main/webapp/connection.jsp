@@ -14,7 +14,7 @@
     <body>
         
         <form method="GET" action="controleur">
-            Nom utilisateur : <input type="text" name="nomUtilisateur" >
+            Nom utilisateur : <input type="text" name="login" >
             Mot de passe : <input type="text" name="mdp" >
             <input type="submit" name="action" VALUE="Se connecter">
         </form>

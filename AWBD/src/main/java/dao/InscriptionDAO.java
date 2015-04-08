@@ -32,7 +32,7 @@ public class InscriptionDAO extends AbstractDataBaseDAO {
         try {
             conn = getConnection();
             Statement st = conn.createStatement();
-            requeteSQL = "INSERT INTO utilisateu(nom,prenom,email,login,mdp) VALUES('"+u.getNom()+"','"+u.getPrenom()+"','"+u.getEmail()+"','"+u.getLogin()+"','"+u.getMdp()+"')";
+            requeteSQL = "INSERT INTO utilisateurs(nom,prenom,email,login,mdp) VALUES('"+u.getNom()+"','"+u.getPrenom()+"','"+u.getEmail()+"','"+u.getLogin()+"','"+u.getMdp()+"')";
             rs = st.executeQuery(requeteSQL);
 
         } catch (SQLException e) {
@@ -43,26 +43,35 @@ public class InscriptionDAO extends AbstractDataBaseDAO {
     }
     
         
-    public String connexion(String u) throws DAOException {
+    public boolean connexion(String log,String mdp) throws DAOException {
         ResultSet rs = null;
         String requeteSQL = "";
         Connection conn = null;
-        String s = null;
+
         try {
+            
+ 
             conn = getConnection();
             Statement st = conn.createStatement();
-            requeteSQL = "select * from utilisateu where login="+u;
+            requeteSQL = "select * from utilisateurs";
             rs = st.executeQuery(requeteSQL);
-            s = rs.getString("login");
 
+            while (rs.next()) {
+                if (rs.getString("login").equals(log) && rs.getString("mdp").equals(mdp)) {
+                    closeConnection(conn);
+                    return true;
+                }
+            }
+
+            closeConnection(conn);
+            return false;
+            
         } catch (SQLException e) {
             throw new DAOException("Erreur BD " + e.getMessage(), e);
-        } finally {
-            closeConnection(conn);
-        }
-        return s;
+        } 
+
     }
-    
+    // retourne false si le login u est n'est pas present dans la BD, true sinon
     public boolean verification(String u) throws DAOException {
         ResultSet rs = null;
         String requeteSQL = "";
@@ -71,21 +80,20 @@ public class InscriptionDAO extends AbstractDataBaseDAO {
         try {
             conn = getConnection();
             Statement st = conn.createStatement();
-            requeteSQL = "select * from utilisateu where login="+u;
+            requeteSQL = "select login from utilisateurs where login ='" +u+"'";
             rs = st.executeQuery(requeteSQL);
-            s = rs.getString("login");
-
+            
+            while(rs.next()) {
+                if (rs.getString("login").equals(u)) {
+                closeConnection(conn);
+                return true;
+                }
+            }       
+            closeConnection(conn); 
+            return false;
+            
         } catch (SQLException e) {
             throw new DAOException("Erreur BD " + e.getMessage(), e);
-        } finally {
-            closeConnection(conn);
-        }
-        if (s.equals("")) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        }     
     }
-    
 }

@@ -61,13 +61,23 @@ public void doGet(HttpServletRequest request,
                                     HttpServletResponse response, InscriptionDAO inscriptionDao
             )
             throws IOException, ServletException,DAOException {
+        
+            PrintWriter out = response.getWriter();
             
-            String user = inscriptionDao.connexion(request.getParameter("login"));
-            if (user.equals("")) {
+            try {
+            if (inscriptionDao.connexion(request.getParameter("login"),request.getParameter("mdp"))==false) {
                 getServletContext().getRequestDispatcher("/connection.jsp").forward(request, response);
             }
             else {
-                getServletContext().getRequestDispatcher("/monCompte.jsp").forward(request, response);
+                HttpSession session = request.getSession();
+                Utilisateur user = new Utilisateur(request.getParameter("nom"),request.getParameter("prenom"), 
+                                                        request.getParameter("login"),request.getParameter("mdp"),request.getParameter("email"));                
+                session.setAttribute("client",user);
+                getServletContext().getRequestDispatcher("/").forward(request, response);
+            }
+            }
+            catch (DAOException d) {
+                out.println("probleme BD");
             }
     }
 
@@ -88,15 +98,21 @@ public void doGet(HttpServletRequest request,
                 
                 Utilisateur user = new Utilisateur(request.getParameter("nom"),request.getParameter("prenom"),
                                                         request.getParameter("login"),request.getParameter("mdp"),request.getParameter("email"));
-                if (inscriptionDao.verification(request.getParameter("login"))==true) {
+                  
+                 if (inscriptionDao.verification(request.getParameter("login"))==false) {
+                     
+                    HttpSession session = request.getSession();
+                    session.setAttribute("client",user);
                     inscriptionDao.inscription(user);
                     getServletContext().getRequestDispatcher("/index.html").forward(request, response);
                 }
                                
                 else {
                     user.setLogin("");
+                    request.setAttribute("utilisateur",user);
                     getServletContext().getRequestDispatcher("/inscription.jsp").forward(request, response);
                 }
+               
             }     
     }
     
